@@ -1,0 +1,22 @@
+enclave {
+    
+    include "user_types.h" /* buffer_t */
+    
+    from "Edger8rSyntax/Types.edl" import *;
+    from "Edger8rSyntax/Pointers.edl" import *;
+    from "Edger8rSyntax/Arrays.edl" import *;
+    from "Edger8rSyntax/Functions.edl" import *;
+
+    from "TrustedLibrary/Libc.edl" import *;
+    from "TrustedLibrary/Libcxx.edl" import ecall_exception, ecall_map;
+    from "TrustedLibrary/Thread.edl" import *;
+
+    trusted {
+        public int add([in] int *a,[in] int *b);
+    };
+
+    untrusted {
+        void ocall_print_string([in, string] const char *str);
+    };
+
+};
