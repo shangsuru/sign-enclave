@@ -11,25 +11,25 @@ CommandLineArguments getArgs(int nargc, char **nargv)
       switch (nargv[i][1])
       {
       case 'm': // message to sign
-        if (args.status != START)
+        if (args.command != START)
           goto error;
 
         args.message = nargv[++i];
-        args.status = SIGN;
+        args.command = SIGN;
         break;
       case 'p': // message to verify
-        if (args.status != START && args.status != VERIFY)
+        if (args.command != START && args.command != VERIFY)
           goto error;
 
         args.message = nargv[++i];
-        args.status = VERIFY;
+        args.command = VERIFY;
         break;
       case 's': // signature of the message
-        if (args.status != START && args.status != VERIFY)
+        if (args.command != START && args.command != VERIFY)
           goto error;
 
         args.signature_file = nargv[++i];
-        args.status = VERIFY;
+        args.command = VERIFY;
         break;
       default:
         goto error; // Unknown command line option
@@ -37,13 +37,13 @@ CommandLineArguments getArgs(int nargc, char **nargv)
     }
   }
 
-  if (args.status == START || (args.status == VERIFY && (args.message == "" || args.signature_file == "")))
+  if (args.command == START || (args.command == VERIFY && (args.message == "" || args.signature_file == "")))
     goto error; // Missing arguments
 
   return args;
 
 error:
   std::cout << usage << std::endl;
-  args.status = ERROR;
+  args.command = ERROR;
   return args;
 }

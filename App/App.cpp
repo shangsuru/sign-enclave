@@ -50,9 +50,9 @@ int main(int argc, char **argv)
   if (ret != SGX_SUCCESS || res != SGX_SUCCESS)
     std::cerr << "Failed at ecdsa_init" << std::endl;
 
-  switch (args.status)
+  switch (args.command)
   {
-  case CommandLineStatus::SIGN:
+  case Command::SIGN:
     sgx_ec256_signature_t sig;
     ret = ecdsa_sign(global_eid, &res, args.message, (void *)&sig, sizeof(sgx_ec256_signature_t));
     if (ret != SGX_SUCCESS || res != SGX_SUCCESS)
@@ -71,9 +71,11 @@ int main(int argc, char **argv)
     std::cout << "Signature of message " << args.message << " successfully verified!" << std::endl;
 
     break;
-  case CommandLineStatus::VERIFY:
+  case Command::VERIFY:
     std::cout << "Verifying the message " << args.message << " with signature file " << args.signature_file << std::endl;
     break;
+  default:
+    std::cout << "An error occurred" << std::endl;
   }
 
   sgx_destroy_enclave(global_eid);

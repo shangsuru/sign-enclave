@@ -3,7 +3,7 @@
 #include <string>
 #include <iostream>
 
-enum CommandLineStatus
+enum Command
 {
   START,
   ERROR,
@@ -15,7 +15,7 @@ struct CommandLineArguments
 {
   char *message;
   char *signature_file;
-  CommandLineStatus status;
+  Command command;
 };
 
 const std::string usage = "usage: %s [-m message_to_sign] [-p message_to_verify -s signature_file]\n";
