@@ -13,6 +13,12 @@ enclave {
 
     trusted {
         public int ecdsa_init();
+
+        public int ecdsa_sign([in, string] const char* message, [out, size=sig_len] void* signature, size_t sig_len);
+
+		public int ecdsa_verify([in, string] const char* message, [in, size=sig_len] void* signature, size_t sig_len);
+
+		public int ecdsa_close();
     };
 
     untrusted {

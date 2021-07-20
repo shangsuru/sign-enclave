@@ -13,8 +13,8 @@ enum CommandLineStatus
 
 struct CommandLineArguments
 {
-  std::string message;
-  std::string signature_file;
+  char *message;
+  char *signature_file;
   CommandLineStatus status;
 };
 
