@@ -35,6 +35,12 @@ int main(int argc, char **argv)
 {
   CommandLineArguments args = getArgs(argc, argv);
 
+  if (initialize_enclave() < 0)
+  {
+    printf("Enclave couldn't get initialized ...\n");
+    return -1;
+  }
+
   switch (args.status)
   {
   case CommandLineStatus::SIGN:
@@ -47,26 +53,8 @@ int main(int argc, char **argv)
     std::cout << "An error occured" << std::endl;
   }
 
-  if (initialize_enclave() < 0)
-  {
-    printf("Enter a character before exit ...\n");
-    getchar();
-    return -1;
-  }
-
-  int r;
-  int a = 3;
-  int b = 5;
-
-  add(global_eid, &r, &a, &b);
-
-  printf("r = %d\n", r);
-
   sgx_destroy_enclave(global_eid);
 
-  printf("Info: SampleEnclave successfully returned.\n");
-
-  printf("Enter a character before exit ...\n");
-  getchar();
+  printf("Info: SignEnclave successfully returned.\n");
   return 0;
 }
