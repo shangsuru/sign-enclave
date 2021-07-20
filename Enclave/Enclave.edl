@@ -12,7 +12,7 @@ enclave {
     from "TrustedLibrary/Thread.edl" import *;
 
     trusted {
-        public int add([in] int *a,[in] int *b);
+        public int ecdsa_init();
     };
 
     untrusted {

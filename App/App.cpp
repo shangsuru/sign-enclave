@@ -33,12 +33,22 @@ void ocall_print_string(const char *str)
 
 int main(int argc, char **argv)
 {
+  sgx_status_t ret = SGX_SUCCESS;
+  int res = -1;
+
   CommandLineArguments args = getArgs(argc, argv);
 
   if (initialize_enclave() < 0)
   {
     printf("Enclave couldn't get initialized ...\n");
     return -1;
+  }
+
+  ret = ecdsa_init(global_eid, &res);
+
+  if (ret != SGX_SUCCESS || res != SGX_SUCCESS)
+  {
+    printf("Failed at ecdsa_init");
   }
 
   switch (args.status)
