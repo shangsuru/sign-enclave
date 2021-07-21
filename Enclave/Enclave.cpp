@@ -4,11 +4,18 @@
 #include <stdio.h> /* vsnprintf */
 #include <string.h>
 #include "sgx_tcrypto.h"
+#include "sgx_tseal.h"
 
 sgx_ecc_state_handle_t context;
 sgx_ec256_private_t privateKey;
 sgx_ec256_public_t publicKey;
 const size_t MAX_MESSAGE_LENGTH = 255;
+
+struct SealedData
+{
+  sgx_ec256_private_t privateKey;
+  sgx_ec256_public_t publicKey;
+};
 
 // Initializes the ECDSA context and creates a new keypair
 int ecdsa_init()
@@ -40,6 +47,25 @@ int ecdsa_verify(const char *message, void *signature, size_t sig_len)
 int ecdsa_close()
 {
   return sgx_ecc256_close_context(context);
+}
+
+// Seals the private and public key and writes them to disk
+int ecdsa_seal_keys(const char *sealed_data_file)
+{
+  sgx_status_t ret = SGX_ERROR_INVALID_PARAMETER;
+  SealedData data{privateKey, publicKey};
+  size_t dataSize = sizeof(data);
+  uint32_t sealedSize = sgx_calc_sealed_data_size(NULL, dataSize);
+  if (sealedSize != 0)
+  {
+    sgx_sealed_data_t *sealedData = (sgx_sealed_data_t *)malloc(sealedSize);
+    ret = sgx_seal_data(NULL, NULL, dataSize, (uint8_t *)&data, sealedSize, sealedData);
+    if (ret == SGX_SUCCESS)
+      ocall_write_data(sealed_data_file, (char *)sealedData, sealedSize);
+    else
+      free(sealedData);
+  }
+  return ret;
 }
 
 // Invokes OCALL to display the enclave buffer to the terminal

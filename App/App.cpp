@@ -1,6 +1,8 @@
 #include <stdio.h>
 #include <string.h>
 #include <assert.h>
+#include <iostream>
+#include <fstream>
 
 #include <unistd.h>
 #include <pwd.h>
@@ -30,6 +32,14 @@ int initialize_enclave(void)
 void ocall_print_string(const char *str)
 {
   printf("%s", str);
+}
+
+void ocall_write_data(const char *file_name, const char *p_data, size_t len)
+{
+  std::ofstream keyfile;
+  keyfile.open(file_name);
+  keyfile << p_data;
+  keyfile.close();
 }
 
 int main(int argc, char **argv)
@@ -76,6 +86,13 @@ int main(int argc, char **argv)
     break;
   default:
     std::cout << "An error occurred" << std::endl;
+  }
+
+  if (args.export_key_file != NULL)
+  {
+    ret = ecdsa_seal_keys(global_eid, &res, args.export_key_file);
+    if (ret != SGX_SUCCESS || res != SGX_SUCCESS)
+      std::cerr << "Failed at ecdsa_seal_keys" << std::endl;
   }
 
   sgx_destroy_enclave(global_eid);

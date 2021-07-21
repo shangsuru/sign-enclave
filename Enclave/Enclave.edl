@@ -19,10 +19,14 @@ enclave {
 		public int ecdsa_verify([in, string] const char* message, [in, size=sig_len] void* signature, size_t sig_len);
 
 		public int ecdsa_close();
+
+        public int ecdsa_seal_keys([in, string] const char* sealed_data_file);
     };
 
     untrusted {
         void ocall_print_string([in, string] const char *str);
+
+        void ocall_write_data([in, string] const char* file_name, [in, size=len] const char* p_data, size_t len);
     };
 
 };

@@ -2,7 +2,7 @@
 
 CommandLineArguments getArgs(int nargc, char **nargv)
 {
-  CommandLineArguments args = {"", "", START};
+  CommandLineArguments args = {NULL, NULL, NULL, START};
 
   for (int i = 0; i < nargc; i++)
   {
@@ -31,13 +31,16 @@ CommandLineArguments getArgs(int nargc, char **nargv)
         args.signature_file = nargv[++i];
         args.command = VERIFY;
         break;
+      case 'e': // name of the file to export generated key pair to
+        args.export_key_file = nargv[++i];
+        break;
       default:
         goto error; // Unknown command line option
       }
     }
   }
 
-  if (args.command == START || (args.command == VERIFY && (args.message == "" || args.signature_file == "")))
+  if (args.command == START || (args.command == VERIFY && (args.message == NULL || args.signature_file == NULL)))
     goto error; // Missing arguments
 
   return args;
