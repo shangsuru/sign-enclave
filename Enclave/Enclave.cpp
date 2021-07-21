@@ -61,7 +61,7 @@ int ecdsa_seal_keys(const char *sealed_data_file)
     sgx_sealed_data_t *sealedData = (sgx_sealed_data_t *)malloc(sealedSize);
     ret = sgx_seal_data(NULL, NULL, dataSize, (uint8_t *)&data, sealedSize, sealedData);
     if (ret == SGX_SUCCESS)
-      ocall_write_data(sealed_data_file, (char *)sealedData, sealedSize);
+      ocall_write_data(sealed_data_file, (char *)sealedData);
     else
       free(sealedData);
   }

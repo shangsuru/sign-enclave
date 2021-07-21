@@ -26,7 +26,7 @@ enclave {
     untrusted {
         void ocall_print_string([in, string] const char *str);
 
-        void ocall_write_data([in, string] const char* file_name, [in, size=len] const char* p_data, size_t len);
+        void ocall_write_data([in, string] const char* file_name, [in, string] const char* p_data);
     };
 
 };
