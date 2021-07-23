@@ -2,43 +2,47 @@
 
 CommandLineArguments getArgs(int nargc, char **nargv)
 {
-  CommandLineArguments args = {NULL, "", NULL, NULL, START};
+  CommandLineArguments args = {NULL, "", false, START};
 
   for (int i = 0; i < nargc; i++)
   {
-    if (nargv[i][0] == '-' && i < nargc - 1)
+    // Options
+    std::cout << nargv[i] << std::endl;
+    if (std::strcmp(nargv[i], "--import-keys") == 0) // import keys for signing and verification from SEALED_DATA_FILE
     {
-      switch (nargv[i][1])
+      args.importKeys = true;
+    }
+    else
+    {
+      // Arguments
+      if (nargv[i][0] == '-' && i < nargc - 1)
       {
-      case 'm': // message to sign
-        if (args.command != START)
-          goto error;
+        switch (nargv[i][1])
+        {
+        case 'm': // message to sign
+          if (args.command != START)
+            goto error;
 
-        args.message = nargv[++i];
-        args.command = SIGN;
-        break;
-      case 'p': // message to verify
-        if (args.command != START && args.command != VERIFY)
-          goto error;
+          args.message = nargv[++i];
+          args.command = SIGN;
+          break;
+        case 'p': // message to verify
+          if (args.command != START && args.command != VERIFY)
+            goto error;
 
-        args.message = nargv[++i];
-        args.command = VERIFY;
-        break;
-      case 's': // signature of the message
-        if (args.command != START && args.command != VERIFY)
-          goto error;
+          args.message = nargv[++i];
+          args.command = VERIFY;
+          break;
+        case 's': // signature of the message
+          if (args.command != START && args.command != VERIFY)
+            goto error;
 
-        args.signature.assign(nargv[++i]);
-        args.command = VERIFY;
-        break;
-      case 'e': // name of the file to export generated key pair to
-        args.export_keyfile = nargv[++i];
-        break;
-      case 'i': // name of the keyfile to import
-        args.import_keyfile = nargv[++i];
-        break;
-      default:
-        goto error; // Unknown command line option
+          args.signature.assign(nargv[++i]);
+          args.command = VERIFY;
+          break;
+        default:
+          goto error; // Unknown command line option
+        }
       }
     }
   }

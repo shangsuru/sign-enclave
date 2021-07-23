@@ -2,6 +2,7 @@
 
 #include <string>
 #include <iostream>
+#include <cstring>
 
 enum Command
 {
@@ -15,11 +16,10 @@ struct CommandLineArguments
 {
   char *message;
   std::string signature;
-  char *export_keyfile;
-  char *import_keyfile;
+  bool importKeys;
   Command command;
 };
 
-const std::string usage = "usage: %s [-e file_name] [-i sealed_keyfile] [-m message_to_sign] [-p message_to_verify -s signature]\n";
+const std::string usage = "usage: %s [-m message_to_sign] [-p message_to_verify -s signature] [--import-keys] \n";
 
 CommandLineArguments getArgs(int nargc, char **nargv);
