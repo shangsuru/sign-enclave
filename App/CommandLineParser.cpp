@@ -2,7 +2,7 @@
 
 CommandLineArguments getArgs(int nargc, char **nargv)
 {
-  CommandLineArguments args = {NULL, NULL, NULL, START};
+  CommandLineArguments args = {NULL, "", NULL, NULL, START};
 
   for (int i = 0; i < nargc; i++)
   {
@@ -28,11 +28,14 @@ CommandLineArguments getArgs(int nargc, char **nargv)
         if (args.command != START && args.command != VERIFY)
           goto error;
 
-        args.signature_file = nargv[++i];
+        args.signature.assign(nargv[++i]);
         args.command = VERIFY;
         break;
       case 'e': // name of the file to export generated key pair to
-        args.export_key_file = nargv[++i];
+        args.export_keyfile = nargv[++i];
+        break;
+      case 'i': // name of the keyfile to import
+        args.import_keyfile = nargv[++i];
         break;
       default:
         goto error; // Unknown command line option
@@ -40,7 +43,7 @@ CommandLineArguments getArgs(int nargc, char **nargv)
     }
   }
 
-  if (args.command == START || (args.command == VERIFY && (args.message == NULL || args.signature_file == NULL)))
+  if (args.command == START || (args.command == VERIFY && (args.message == NULL || args.signature == "")))
     goto error; // Missing arguments
 
   return args;

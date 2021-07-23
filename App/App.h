@@ -18,6 +18,7 @@
 
 #define TOKEN_FILENAME "enclave.token"
 #define ENCLAVE_FILENAME "enclave.signed.so"
+#define SEALED_DATA_FILE "sealed_data_blob.txt"
 
 extern sgx_enclave_id_t global_eid; /* global enclave id */
 

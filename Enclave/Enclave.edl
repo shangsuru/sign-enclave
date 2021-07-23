@@ -12,7 +12,7 @@ enclave {
     from "TrustedLibrary/Thread.edl" import *;
 
     trusted {
-        public int ecdsa_init();
+        public int ecdsa_init([in, string] const char* keyfile);
 
         public int ecdsa_sign([in, string] const char* message, [out, size=sig_len] void* signature, size_t sig_len);
 
@@ -20,13 +20,15 @@ enclave {
 
 		public int ecdsa_close();
 
-        public int ecdsa_seal_keys([in, string] const char* sealed_data_file);
+        public sgx_status_t unseal_data([in, size=data_size] const uint8_t *sealed_blob, size_t data_size);
+
+        public uint32_t get_sealed_data_size();
+
+		public sgx_status_t seal_data([out, size=data_size] uint8_t* sealed_blob, uint32_t data_size);
     };
 
     untrusted {
-        void ocall_print_string([in, string] const char *str);
-
-        void ocall_write_data([in, string] const char* file_name, [in, string] const char* p_data);
+        void ocall_print_string([in, string] const char* str);
     };
 
 };

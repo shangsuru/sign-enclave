@@ -14,11 +14,12 @@ enum Command
 struct CommandLineArguments
 {
   char *message;
-  char *signature_file;
-  char *export_key_file;
+  std::string signature;
+  char *export_keyfile;
+  char *import_keyfile;
   Command command;
 };
 
-const std::string usage = "usage: %s [-e file_name] [-m message_to_sign] [-p message_to_verify -s signature_file]\n";
+const std::string usage = "usage: %s [-e file_name] [-i sealed_keyfile] [-m message_to_sign] [-p message_to_verify -s signature]\n";
 
 CommandLineArguments getArgs(int nargc, char **nargv);
