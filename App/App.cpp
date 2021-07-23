@@ -300,6 +300,15 @@ int main(int argc, char **argv)
     return -1;
   }
 
+  ret = ecdsa_init(global_eid, &res);
+
+  // Test sign and verify before sealing
+  sgx_ec256_signature_t sig;
+  ret = ecdsa_sign(global_eid, &res, "test", (void *)&sig, sizeof(sgx_ec256_signature_t));
+  ret = ecdsa_verify(global_eid, &res, "test", (void *)&sig, sizeof(sgx_ec256_signature_t));
+  if (ret == SGX_SUCCESS && res == SGX_EC_VALID)
+    std::cerr << "Verification 1 successful" << std::endl;
+
   // Enclave_Seal: seal the secret and save the data blob to a file
   if (seal_and_save_data() == false)
   {
@@ -313,6 +322,12 @@ int main(int argc, char **argv)
     std::cout << "Failed to unseal the data blob." << std::endl;
     return -1;
   }
+
+  // Test sign and verify after unseal
+  ret = ecdsa_sign(global_eid, &res, "test", (void *)&sig, sizeof(sgx_ec256_signature_t));
+  ret = ecdsa_verify(global_eid, &res, "test", (void *)&sig, sizeof(sgx_ec256_signature_t));
+  if (ret == SGX_SUCCESS && res == SGX_EC_VALID)
+    std::cerr << "Verification 2 successful" << std::endl;
 
   return 0;
 

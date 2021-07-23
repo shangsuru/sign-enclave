@@ -12,7 +12,7 @@ enclave {
     from "TrustedLibrary/Thread.edl" import *;
 
     trusted {
-        public int ecdsa_init([in, string] const char* keyfile);
+        public int ecdsa_init();
 
         public int ecdsa_sign([in, string] const char* message, [out, size=sig_len] void* signature, size_t sig_len);
 

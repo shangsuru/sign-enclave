@@ -119,17 +119,15 @@ std::string base64_decode(std::string const &encoded_string)
   return ret;
 }
 
-// The orignal secret used for comparison
-char encrypt_data[BUFSIZ] = "Data to encrypt";
-char aad_mac_text[BUFSIZ] = "aad mac text";
-
 uint32_t get_sealed_data_size()
 {
+  char *encrypt_data = (char *)privateKey.r;
   return sgx_calc_sealed_data_size(NULL, (uint32_t)strlen(encrypt_data));
 }
 
 sgx_status_t seal_data(uint8_t *sealed_blob, uint32_t data_size)
 {
+  char *encrypt_data = (char *)privateKey.r;
   printf("Data to encrypt is: ");
   printf(encrypt_data);
   printf("\n");
@@ -156,6 +154,7 @@ sgx_status_t seal_data(uint8_t *sealed_blob, uint32_t data_size)
 
 sgx_status_t unseal_data(const uint8_t *sealed_blob, size_t data_size)
 {
+  char *encrypt_data = (char *)privateKey.r;
   uint32_t decrypt_data_len = sgx_get_encrypt_txt_len((const sgx_sealed_data_t *)sealed_blob);
   if (decrypt_data_len == UINT32_MAX)
     return SGX_ERROR_UNEXPECTED;
@@ -180,6 +179,8 @@ sgx_status_t unseal_data(const uint8_t *sealed_blob, size_t data_size)
     ret = SGX_ERROR_UNEXPECTED;
   }
 
+  memcpy(privateKey.r, decrypt_data, sizeof(sgx_ec256_private_t));
+
   printf("Data that was unsealed is: ");
   printf((char *)decrypt_data);
   printf("\n");
@@ -188,7 +189,7 @@ sgx_status_t unseal_data(const uint8_t *sealed_blob, size_t data_size)
 }
 
 // Initializes the ECDSA context and creates a new keypair
-int ecdsa_init(const char *keyfile)
+int ecdsa_init()
 {
   sgx_status_t ret = sgx_ecc256_open_context(&context);
   sgx_sealed_data_t *enc_data = NULL;
