@@ -7,8 +7,12 @@ Extensions (Intel(R) SGX) SDK:
 - Using ECDSA from SGXs cryptographic API
 
 ## Getting Started
-
-Build the code
+1. Install Intel(R) SGX SDK for Linux OS
+2. Make sure your environment is set:
+```
+source ${sgx-sdk-install-path}/environment
+```
+3. Build the code
 ```
 cmake -S . -B build
 cmake --build build
