@@ -1,8 +1,6 @@
 enclave {
 
     trusted {
-        public int ecdsa_init();
-
         public int generate_key_pair();
 
         public int sign([in, string] const char* message, [out, size=sig_len] void* signature, size_t sig_len);

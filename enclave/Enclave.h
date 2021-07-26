@@ -11,7 +11,7 @@
 #include "Base64Encoding.h"
 #include "Enclave_t.h"
 
-sgx_ecc_state_handle_t context;
+sgx_ecc_state_handle_t context = NULL;
 sgx_ec256_private_t ec256_private_key;
 sgx_ec256_public_t ec256_public_key;
 const size_t MAX_MESSAGE_LENGTH = 255;
@@ -44,12 +44,6 @@ sgx_status_t seal_keys(uint8_t *sealed_blob, uint32_t sealed_size);
  * @returns SGX_SUCCESS or error code
  */
 sgx_status_t unseal_keys(const uint8_t *sealed_blob, size_t data_size);
-
-/**
- * Initializes the context for ECSDSA signature.
- * @returns SGX_SUCCESS or error code
- */
-int ecdsa_init();
 
 /**
  * Generates keys for ECDSA signature and sets corresponding private and 

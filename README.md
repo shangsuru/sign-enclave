@@ -8,15 +8,11 @@ Extensions (Intel(R) SGX) SDK:
 
 ## Getting Started
 
-1. Build the code
+Build the code
 ```
 cmake -S . -B build
 cmake --build build
-```
-2. Generate initial signing keys
-```
 cd build
-./sign-enclave --reset
 ```
 
 ## Example Usage

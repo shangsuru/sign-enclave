@@ -68,7 +68,6 @@ bool read_and_unseal_keys()
   size_t fsize = get_file_size(SEALED_KEY_FILE);
   if (fsize == (size_t)-1)
   {
-    std::cerr << "Failed to get the file size of \"" << SEALED_KEY_FILE << "\"" << std::endl;
     return false;
   }
   uint8_t *temp_buf = (uint8_t *)malloc(fsize);
@@ -79,7 +78,6 @@ bool read_and_unseal_keys()
   }
   if (read_file_to_buf(SEALED_KEY_FILE, temp_buf, fsize) == false)
   {
-    std::cerr << "Failed to read the sealed data blob from \"" << SEALED_KEY_FILE << "\"" << std::endl;
     free(temp_buf);
     return false;
   }
@@ -117,14 +115,9 @@ int main(int argc, char **argv)
     return -1;
   }
 
-  ret = ecdsa_init(global_eid, &res);
-  if (ret != SGX_SUCCESS || res != SGX_SUCCESS)
-    std::cerr << "Failed at ecdsa_init" << std::endl;
-
-  if (args.reset)
+  // Generate new keys if reset option was set or there was an error reading the keys from sealed storage
+  if (args.reset || read_and_unseal_keys() == false)
     generate_key_pair(global_eid, &res);
-  else
-    read_and_unseal_keys();
 
   switch (args.command)
   {
