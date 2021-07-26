@@ -23,7 +23,7 @@ struct CommandLineArguments
 };
 
 // String that is printed to the user, when a parsing error occurs
-const std::string usage = "usage: %s [-m message_to_sign] [-p message_to_verify -s signature] [--import-keys] \n";
+const std::string usage = "usage: %s [-m message_to_sign] [-p message_to_verify -s signature] [--reset] \n";
 
 /**
  * Parses the input from the user given via the command line.

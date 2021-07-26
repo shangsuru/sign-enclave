@@ -41,12 +41,12 @@ sgx_status_t unseal_keys(const uint8_t *sealed_blob, size_t sealed_size)
       goto error;
     ec256_private_key = unsealed_data->privateKey;
     ec256_public_key = unsealed_data->publicKey;
-
-  error:
-    if (unsealed_data != NULL)
-      free(unsealed_data);
-    return ret;
   }
+
+error:
+  if (unsealed_data != NULL)
+    free(unsealed_data);
+  return ret;
 }
 
 // Initializes the ECDSA context and creates a new keypair

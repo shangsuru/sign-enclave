@@ -1,12 +1,1 @@
-*.o
-
-app
-.config_HW_DEBUG_x64
-enclave.so
-enclave.signed.so
-sealed_data_blob.txt
-
-Enclave_u.c
-Enclave_u.h
-Enclave_t.c
-Enclave_t.h
+build/
