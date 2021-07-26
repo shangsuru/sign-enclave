@@ -6,6 +6,9 @@
 #include <stdarg.h>
 
 #include "ErrorSupport.h"
+#include "CommandLineParser.h"
+#include "Base64Encoding.h"
+#include "FileIO.h"
 #include "sgx_eid.h"
 
 #ifndef TRUE

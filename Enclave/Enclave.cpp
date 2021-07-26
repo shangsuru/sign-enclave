@@ -17,7 +17,7 @@ uint32_t get_sealed_data_size()
   return sgx_calc_sealed_data_size(NULL, sizeof(DataToSeal{}));
 }
 
-sgx_status_t seal_data(uint8_t *sealed_blob, uint32_t sealed_size)
+sgx_status_t seal_keys(uint8_t *sealed_blob, uint32_t sealed_size)
 {
   sgx_status_t ret = SGX_ERROR_INVALID_PARAMETER;
   sgx_sealed_data_t *sealed_data = NULL;
@@ -37,7 +37,7 @@ sgx_status_t seal_data(uint8_t *sealed_blob, uint32_t sealed_size)
   return ret;
 }
 
-sgx_status_t unseal_data(const uint8_t *sealed_blob, size_t data_size)
+sgx_status_t unseal_keys(const uint8_t *sealed_blob, size_t data_size)
 {
   sgx_status_t ret = SGX_ERROR_INVALID_PARAMETER;
   DataToSeal *unsealed_data = NULL;
@@ -64,22 +64,22 @@ sgx_status_t unseal_data(const uint8_t *sealed_blob, size_t data_size)
 // Initializes the ECDSA context and creates a new keypair
 int ecdsa_init()
 {
-  sgx_status_t ret = sgx_ecc256_open_context(&context);
+  return sgx_ecc256_open_context(&context);
+}
 
-  if (ret != SGX_SUCCESS)
-    return ret;
-
+int generate_key_pair()
+{
   return sgx_ecc256_create_key_pair(&ec256_private_key, &ec256_public_key, context);
 }
 
 // Signs a given message and returns the signature object
-int ecdsa_sign(const char *message, void *signature, size_t sig_len)
+int sign(const char *message, void *signature, size_t sig_len)
 {
   return sgx_ecdsa_sign((uint8_t *)message, strnlen(message, MAX_MESSAGE_LENGTH), &ec256_private_key, (sgx_ec256_signature_t *)signature, context);
 }
 
 // Verifies a given message with its signature object and returns on success SGX_EC_VALID or on failure SGX_EC_INVALID_SIGNATURE
-int ecdsa_verify(const char *message, void *signature, size_t sig_len)
+int verify(const char *message, void *signature, size_t sig_len)
 {
   uint8_t res;
   sgx_ec256_signature_t *sig = (sgx_ec256_signature_t *)signature;

@@ -6,18 +6,18 @@
 
 enum Command
 {
-  START,
-  ERROR,
-  SIGN,
-  VERIFY
+  START, // used internally
+  ERROR, // signifies missing arguments
+  SIGN,  // the user wants to sign a message
+  VERIFY // the user wants to verify a message signature pair
 };
 
 struct CommandLineArguments
 {
-  char *message;
-  std::string signature;
-  bool importKeys;
-  Command command;
+  char *message;         // message to sign or verify
+  std::string signature; // signature to verify
+  bool reset;            // if a new keypair should be generated or loaded from sealed storage
+  Command command;       // command is SIGN or VERIFY
 };
 
 const std::string usage = "usage: %s [-m message_to_sign] [-p message_to_verify -s signature] [--import-keys] \n";

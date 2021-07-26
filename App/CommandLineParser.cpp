@@ -6,15 +6,14 @@ CommandLineArguments getArgs(int nargc, char **nargv)
 
   for (int i = 0; i < nargc; i++)
   {
-    // Options
-    std::cout << nargv[i] << std::endl;
-    if (std::strcmp(nargv[i], "--import-keys") == 0) // import keys for signing and verification from SEALED_DATA_FILE
+    // options
+    if (std::strcmp(nargv[i], "--reset") == 0) // generate new keypair instead of reading from sealed file
     {
-      args.importKeys = true;
+      args.reset = true;
     }
     else
     {
-      // Arguments
+      // arguments
       if (nargv[i][0] == '-' && i < nargc - 1)
       {
         switch (nargv[i][1])

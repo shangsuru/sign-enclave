@@ -14,17 +14,19 @@ enclave {
     trusted {
         public int ecdsa_init();
 
-        public int ecdsa_sign([in, string] const char* message, [out, size=sig_len] void* signature, size_t sig_len);
+        public int generate_key_pair();
 
-		public int ecdsa_verify([in, string] const char* message, [in, size=sig_len] void* signature, size_t sig_len);
+        public int sign([in, string] const char* message, [out, size=sig_len] void* signature, size_t sig_len);
+
+		public int verify([in, string] const char* message, [in, size=sig_len] void* signature, size_t sig_len);
 
 		public int ecdsa_close();
 
-        public sgx_status_t unseal_data([in, size=data_size] const uint8_t *sealed_blob, size_t data_size);
+        public sgx_status_t unseal_keys([in, size=data_size] const uint8_t *sealed_blob, size_t data_size);
 
         public uint32_t get_sealed_data_size();
 
-		public sgx_status_t seal_data([out, size=sealed_size] uint8_t* sealed_blob, uint32_t sealed_size);
+		public sgx_status_t seal_keys([out, size=sealed_size] uint8_t* sealed_blob, uint32_t sealed_size);
     };
 
     untrusted {
