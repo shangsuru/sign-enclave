@@ -1,12 +1,6 @@
 #include "ErrorSupport.h"
 
-typedef struct _sgx_errlist_t
-{
-  sgx_status_t err;
-  const char *msg;
-} sgx_errlist_t;
-
-static sgx_errlist_t sgx_errlist[] = {
+SGX_ErrorList sgx_errlist[] = {
     {SGX_ERROR_UNEXPECTED, "Unexpected error occurred."},
     {SGX_ERROR_INVALID_PARAMETER, "Invalid parameter."},
     {SGX_ERROR_OUT_OF_MEMORY, "Out of memory."},

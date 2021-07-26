@@ -1,16 +1,4 @@
 #include "Enclave.h"
-#include "Enclave_t.h"
-
-sgx_ecc_state_handle_t context;
-sgx_ec256_private_t ec256_private_key;
-sgx_ec256_public_t ec256_public_key;
-const size_t MAX_MESSAGE_LENGTH = 255;
-
-struct DataToSeal
-{
-  sgx_ec256_private_t privateKey;
-  sgx_ec256_public_t publicKey;
-};
 
 uint32_t get_sealed_data_size()
 {
@@ -37,7 +25,7 @@ sgx_status_t seal_keys(uint8_t *sealed_blob, uint32_t sealed_size)
   return ret;
 }
 
-sgx_status_t unseal_keys(const uint8_t *sealed_blob, size_t data_size)
+sgx_status_t unseal_keys(const uint8_t *sealed_blob, size_t sealed_size)
 {
   sgx_status_t ret = SGX_ERROR_INVALID_PARAMETER;
   DataToSeal *unsealed_data = NULL;
@@ -46,8 +34,8 @@ sgx_status_t unseal_keys(const uint8_t *sealed_blob, size_t data_size)
   if (dec_size != 0)
   {
     unsealed_data = (DataToSeal *)malloc(dec_size);
-    sgx_sealed_data_t *tmp = (sgx_sealed_data_t *)malloc(data_size);
-    memcpy(tmp, sealed_blob, data_size);
+    sgx_sealed_data_t *tmp = (sgx_sealed_data_t *)malloc(sealed_size);
+    memcpy(tmp, sealed_blob, sealed_size);
     ret = sgx_unseal_data(tmp, NULL, NULL, (uint8_t *)unsealed_data, &dec_size);
     if (ret != SGX_SUCCESS)
       goto error;
@@ -91,16 +79,4 @@ int verify(const char *message, void *signature, size_t sig_len)
 int ecdsa_close()
 {
   return sgx_ecc256_close_context(context);
-}
-
-// Invokes OCALL to display the enclave buffer to the terminal
-int printf(const char *fmt, ...)
-{
-  char buf[BUFSIZ] = {'\0'};
-  va_list ap;
-  va_start(ap, fmt);
-  vsnprintf(buf, BUFSIZ, fmt, ap);
-  va_end(ap);
-  ocall_print_string(buf);
-  return (int)strnlen(buf, BUFSIZ - 1) + 1;
 }

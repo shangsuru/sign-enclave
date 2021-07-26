@@ -4,41 +4,48 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <stdarg.h>
+#include <string.h>
+#include <iostream>
+#include <string>
+#include <algorithm>
+#include <stdexcept>
 
 #include "ErrorSupport.h"
+#include "Enclave_u.h"
 #include "CommandLineParser.h"
 #include "Base64Encoding.h"
 #include "FileIO.h"
 #include "sgx_eid.h"
-
-#ifndef TRUE
-#define TRUE 1
-#endif
-
-#ifndef FALSE
-#define FALSE 0
-#endif
+#include <unistd.h>
+#include <pwd.h>
+#include "sgx_urts.h"
+#include "sgx_tcrypto.h"
 
 #define TOKEN_FILENAME "enclave.token"
 #define ENCLAVE_FILENAME "enclave.signed.so"
-#define SEALED_DATA_FILE "sealed_data_blob.txt"
+#define SEALED_KEY_FILE "sealed_data_blob.txt"
+#define MAX_PATH FILENAME_MAX
 
-extern sgx_enclave_id_t global_eid; /* global enclave id */
+sgx_enclave_id_t global_eid = 0;
 
-#if defined(__cplusplus)
-extern "C"
-{
-#endif
+/**
+ * Initializes the enclave (in DEBUG mode).
+ * 
+ * @returns true if successful, else false
+ */
+bool initialize_enclave();
 
-  void edger8r_array_attributes(void);
-  void edger8r_type_attributes(void);
-  void edger8r_pointer_attributes(void);
-  void edger8r_function_attributes(void);
+/**
+ * Stores key pair for ECDSA signature inside the sealed key file.
+ * 
+ * @returns true if successful, else false
+ */
+bool seal_and_save_keys();
 
-  void ecall_libc_functions(void);
-  void ecall_libcxx_functions(void);
-  void ecall_thread_functions(void);
-
-#if defined(__cplusplus)
-}
-#endif
+/**
+ * Unseals key pair for ECDSA signature from the sealed key file
+ * and sets them as the current public and private key.
+ * 
+ * @returns true, if successful, else false
+ */
+bool read_and_unseal_keys();

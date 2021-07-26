@@ -1,40 +1,18 @@
-#include <stdio.h>
-#include <string.h>
-#include <iostream>
-#include <string>
-#include <algorithm>
-#include <stdexcept>
-
-#include <unistd.h>
-#include <pwd.h>
-#include "sgx_urts.h"
-#include "sgx_tcrypto.h"
 #include "App.h"
-#include "Enclave_u.h"
 
-#define MAX_PATH FILENAME_MAX
-
-sgx_enclave_id_t global_eid = 0;
-
-int initialize_enclave()
+bool initialize_enclave()
 {
   sgx_status_t ret = SGX_ERROR_UNEXPECTED;
   ret = sgx_create_enclave(ENCLAVE_FILENAME, SGX_DEBUG_FLAG, NULL, NULL, &global_eid, NULL);
   if (ret != SGX_SUCCESS)
   {
     ret_error_support(ret);
-    return -1;
+    return false;
   }
-
-  return 0;
+  return true;
 }
 
-void ocall_print_string(const char *str)
-{
-  printf("%s", str);
-}
-
-static bool seal_and_save_keys()
+bool seal_and_save_keys()
 {
   uint32_t sealed_data_size = 0;
   sgx_status_t ret = get_sealed_data_size(global_eid, &sealed_data_size);
@@ -72,9 +50,9 @@ static bool seal_and_save_keys()
   }
 
   // Save the sealed blob
-  if (write_buf_to_file(SEALED_DATA_FILE, temp_sealed_buf, sealed_data_size, 0) == false)
+  if (write_buf_to_file(SEALED_KEY_FILE, temp_sealed_buf, sealed_data_size, 0) == false)
   {
-    std::cerr << "Failed to save the sealed data blob to \"" << SEALED_DATA_FILE << "\"" << std::endl;
+    std::cerr << "Failed to save the sealed data blob to \"" << SEALED_KEY_FILE << "\"" << std::endl;
     free(temp_sealed_buf);
     return false;
   }
@@ -83,14 +61,14 @@ static bool seal_and_save_keys()
   return true;
 }
 
-static bool read_and_unseal_keys()
+bool read_and_unseal_keys()
 {
   sgx_status_t ret;
   // Read the sealed blob from the file
-  size_t fsize = get_file_size(SEALED_DATA_FILE);
+  size_t fsize = get_file_size(SEALED_KEY_FILE);
   if (fsize == (size_t)-1)
   {
-    std::cerr << "Failed to get the file size of \"" << SEALED_DATA_FILE << "\"" << std::endl;
+    std::cerr << "Failed to get the file size of \"" << SEALED_KEY_FILE << "\"" << std::endl;
     return false;
   }
   uint8_t *temp_buf = (uint8_t *)malloc(fsize);
@@ -99,9 +77,9 @@ static bool read_and_unseal_keys()
     std::cerr << "Out of memory" << std::endl;
     return false;
   }
-  if (read_file_to_buf(SEALED_DATA_FILE, temp_buf, fsize) == false)
+  if (read_file_to_buf(SEALED_KEY_FILE, temp_buf, fsize) == false)
   {
-    std::cerr << "Failed to read the sealed data blob from \"" << SEALED_DATA_FILE << "\"" << std::endl;
+    std::cerr << "Failed to read the sealed data blob from \"" << SEALED_KEY_FILE << "\"" << std::endl;
     free(temp_buf);
     return false;
   }
@@ -133,7 +111,7 @@ int main(int argc, char **argv)
 
   CommandLineArguments args = getArgs(argc, argv);
 
-  if (initialize_enclave() < 0)
+  if (initialize_enclave() == false)
   {
     std::cerr << "Enclave couldn't get initialized ..." << std::endl;
     return -1;
