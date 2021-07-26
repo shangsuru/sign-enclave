@@ -4,6 +4,7 @@
 #include <stdio.h> /* vsnprintf */
 #include <string.h>
 #include <string>
+#include <cstring>
 #include "sgx_tcrypto.h"
 #include "sgx_tseal.h"
 
@@ -12,7 +13,7 @@ sgx_ec256_private_t privateKey;
 sgx_ec256_public_t publicKey;
 const size_t MAX_MESSAGE_LENGTH = 255;
 
-struct SealedData
+struct DataToSeal
 {
   sgx_ec256_private_t privateKey;
   sgx_ec256_public_t publicKey;
@@ -119,45 +120,83 @@ std::string base64_decode(std::string const &encoded_string)
   return ret;
 }
 
+//char encrypt_data[BUFSIZ] = "Data to encrypt";
+char *encrypt_data = (char *)privateKey.r;
+
 uint32_t get_sealed_data_size()
 {
-  char *encrypt_data = (char *)privateKey.r;
-  return sgx_calc_sealed_data_size(NULL, (uint32_t)strlen(encrypt_data));
+  DataToSeal data;
+  data.privateKey = privateKey;
+  data.publicKey = publicKey;
+  size_t data_size = sizeof(data);
+  return sgx_calc_sealed_data_size(NULL, data_size);
 }
 
-sgx_status_t seal_data(uint8_t *sealed_blob, uint32_t data_size)
+sgx_status_t seal_data(uint8_t *sealed_blob, uint32_t data_sizePARAM)
 {
-  char *encrypt_data = (char *)privateKey.r;
-  printf("Data to encrypt is: ");
-  printf(encrypt_data);
-  printf("\n");
+  printf("Inside seal_data\n");
+  sgx_status_t ret = SGX_ERROR_INVALID_PARAMETER;
+  sgx_sealed_data_t *sealed_data = NULL;
+  uint32_t sealed_size = 0;
 
-  uint32_t sealed_data_size = sgx_calc_sealed_data_size(NULL, (uint32_t)strlen(encrypt_data));
-  if (sealed_data_size == UINT32_MAX)
-    return SGX_ERROR_UNEXPECTED;
-  if (sealed_data_size > data_size)
-    return SGX_ERROR_INVALID_PARAMETER;
+  DataToSeal data;
+  data.privateKey = privateKey;
+  data.publicKey = publicKey;
+  size_t data_size = sizeof(data);
 
-  uint8_t *temp_sealed_buf = (uint8_t *)malloc(sealed_data_size);
-  if (temp_sealed_buf == NULL)
-    return SGX_ERROR_OUT_OF_MEMORY;
-  sgx_status_t err = sgx_seal_data(NULL, NULL, (uint32_t)strlen(encrypt_data), (uint8_t *)encrypt_data, sealed_data_size, (sgx_sealed_data_t *)temp_sealed_buf);
-  if (err == SGX_SUCCESS)
+  sealed_size = sgx_calc_sealed_data_size(NULL, data_size);
+  printf("Got unsealed size: %d\n", data_size);
+  printf("Got sealed size: %d\n", sealed_size);
+  if (sealed_size != 0)
   {
-    // Copy the sealed data to outside buffer
-    memcpy(sealed_blob, temp_sealed_buf, sealed_data_size);
+    sealed_data = (sgx_sealed_data_t *)malloc(sealed_size);
+    ret = sgx_seal_data(NULL, NULL, data_size, (uint8_t *)&data, sealed_size, sealed_data);
+    printf("Called sgx_seal_data\n");
+    if (ret == SGX_SUCCESS)
+    {
+      //esv_write_data(sealed_data_file_name, (unsigned char *)sealed_data, sealed_size);
+      printf("I am here\n");
+      memcpy(sealed_blob, sealed_data, sealed_size);
+    }
+    else
+      free(sealed_data);
   }
-
-  free(temp_sealed_buf);
-  return err;
+  printf("Returned seal_data\n");
+  return ret;
 }
 
 sgx_status_t unseal_data(const uint8_t *sealed_blob, size_t data_size)
 {
-  char *encrypt_data = (char *)privateKey.r;
-  uint32_t decrypt_data_len = sgx_get_encrypt_txt_len((const sgx_sealed_data_t *)sealed_blob);
+  sgx_status_t ret = SGX_ERROR_INVALID_PARAMETER;
+  DataToSeal *unsealed_data = NULL;
+  uint32_t dec_size = 0;
+  dec_size = sgx_get_encrypt_txt_len((sgx_sealed_data_t *)sealed_blob);
+  if (dec_size != 0)
+  {
+    unsealed_data = (DataToSeal *)malloc(dec_size);
+    sgx_sealed_data_t *tmp = (sgx_sealed_data_t *)malloc(data_size);
+    //copy the data from 'esv_read_data' to trusted enclave memory. This is needed because otherwise sgx_unseal_data will rise an error
+    memcpy(tmp, sealed_blob, data_size);
+    ret = sgx_unseal_data(tmp, NULL, NULL, (uint8_t *)unsealed_data, &dec_size);
+    if (ret != SGX_SUCCESS)
+      goto error;
+    privateKey = unsealed_data->privateKey;
+    publicKey = unsealed_data->publicKey;
+
+  error:
+    if (unsealed_data != NULL)
+      free(unsealed_data);
+    return ret;
+  }
+  /*uint32_t decrypt_data_len = sgx_get_encrypt_txt_len((const sgx_sealed_data_t *)sealed_blob);
+  decrypt_data_len = data_size;
   if (decrypt_data_len == UINT32_MAX)
     return SGX_ERROR_UNEXPECTED;
+
+  printf("Unsealed data\n");
+  printf("%d", decrypt_data_len);
+  printf("\n");
+  printf("%d", data_size);
   if (decrypt_data_len > data_size)
     return SGX_ERROR_INVALID_PARAMETER;
 
@@ -174,18 +213,23 @@ sgx_status_t unseal_data(const uint8_t *sealed_blob, size_t data_size)
     return ret;
   }
 
+  if (strlen((char *)decrypt_data) != strlen(encrypt_data))
+  {
+    ret = SGX_ERROR_UNEXPECTED;
+  }
+
   if (memcmp(decrypt_data, encrypt_data, strlen(encrypt_data)))
   {
     ret = SGX_ERROR_UNEXPECTED;
   }
 
-  memcpy(privateKey.r, decrypt_data, sizeof(sgx_ec256_private_t));
+  memcpy(privateKey.r, decrypt_data, sizeof(sgx_ec256_private_t)); // POTENTIAL ERROR
 
-  printf("Data that was unsealed is: ");
+  printf("Data that was unsealed is (decrypt_data): ");
   printf((char *)decrypt_data);
   printf("\n");
   free(decrypt_data);
-  return ret;
+  return ret;*/
 }
 
 // Initializes the ECDSA context and creates a new keypair
@@ -193,7 +237,7 @@ int ecdsa_init()
 {
   sgx_status_t ret = sgx_ecc256_open_context(&context);
   sgx_sealed_data_t *enc_data = NULL;
-  SealedData *unsealed_data = NULL;
+  DataToSeal *unsealed_data = NULL;
   size_t enc_data_size;
 
   if (ret != SGX_SUCCESS)

@@ -24,7 +24,7 @@ enclave {
 
         public uint32_t get_sealed_data_size();
 
-		public sgx_status_t seal_data([out, size=data_size] uint8_t* sealed_blob, uint32_t data_size);
+		public sgx_status_t seal_data([out, size=data_sizePARAM] uint8_t* sealed_blob, uint32_t data_sizePARAM);
     };
 
     untrusted {

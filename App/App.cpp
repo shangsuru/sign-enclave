@@ -197,6 +197,9 @@ static bool seal_and_save_data()
   // Get the sealed data size
   uint32_t sealed_data_size = 0;
   ret = get_sealed_data_size(global_eid, &sealed_data_size);
+
+  std::cout << "Got sealed data size" << std::endl;
+
   if (ret != SGX_SUCCESS)
   {
     ret_error_support(ret);
@@ -213,6 +216,7 @@ static bool seal_and_save_data()
     std::cout << "Out of memory" << std::endl;
     return false;
   }
+
   sgx_status_t retval;
   ret = seal_data(global_eid, &retval, temp_sealed_buf, sealed_data_size);
   if (ret != SGX_SUCCESS)
@@ -228,6 +232,8 @@ static bool seal_and_save_data()
     return false;
   }
 
+  printf("Temp buf before write:\n");
+  printf("%d\n", sizeof(temp_sealed_buf));
   // Save the sealed blob
   if (write_buf_to_file(SEALED_DATA_FILE, temp_sealed_buf, sealed_data_size, 0) == false)
   {
@@ -264,6 +270,9 @@ static bool read_and_unseal_data()
     free(temp_buf);
     return false;
   }
+
+  printf("Temp Buf Size after read:\n");
+  printf("%d", sizeof(temp_buf));
 
   // Unseal the sealed blob
   sgx_status_t retval;
@@ -315,6 +324,8 @@ int main(int argc, char **argv)
     std::cout << "Failed to seal the secret and save it to a file." << std::endl;
     return -1;
   }
+
+  std::cout << "Sealed the data" << std::endl;
 
   // Enclave_Unseal: read the data blob from the file and unseal it.
   if (read_and_unseal_data() == false)
