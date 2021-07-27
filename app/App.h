@@ -1,25 +1,15 @@
 #pragma once
 
-#include <assert.h>
-#include <stdio.h>
-#include <stdlib.h>
-#include <stdarg.h>
-#include <string.h>
 #include <iostream>
 #include <string>
-#include <algorithm>
-#include <stdexcept>
-
+#include "sgx_eid.h"
+#include "sgx_urts.h"
+#include "sgx_tcrypto.h"
 #include "ErrorSupport.h"
 #include "Enclave_u.h"
 #include "CommandLineParser.h"
 #include "Base64Encoding.h"
 #include "FileIO.h"
-#include "sgx_eid.h"
-#include <unistd.h>
-#include <pwd.h>
-#include "sgx_urts.h"
-#include "sgx_tcrypto.h"
 
 #define TOKEN_FILENAME "enclave.token"
 #define ENCLAVE_FILENAME "enclave.signed.so"
