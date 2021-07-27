@@ -56,7 +56,6 @@ int generate_key_pair()
   return sgx_ecc256_create_key_pair(&ec256_private_key, &ec256_public_key, context);
 }
 
-// Signs a given message and returns the signature object
 int sign(const char *message, void *signature, size_t sig_len)
 {
   if (context == NULL)
@@ -64,7 +63,6 @@ int sign(const char *message, void *signature, size_t sig_len)
   return sgx_ecdsa_sign((uint8_t *)message, strnlen(message, MAX_MESSAGE_LENGTH), &ec256_private_key, (sgx_ec256_signature_t *)signature, context);
 }
 
-// Verifies a given message with its signature object and returns on success SGX_EC_VALID or on failure SGX_EC_INVALID_SIGNATURE
 int verify(const char *message, void *signature, size_t sig_len)
 {
   if (context == NULL)
@@ -75,7 +73,6 @@ int verify(const char *message, void *signature, size_t sig_len)
   return res;
 }
 
-// Closes the ECDSA context
 int ecdsa_close()
 {
   if (context == NULL)
